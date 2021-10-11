@@ -92,7 +92,7 @@ export default {
           user:user(*)
           `)
           .not("user", "eq", store.user.id)
-          .containedBy("tags", userSkills.value);
+          .overlaps("tags", userSkills.value);
         if (data) {
           console.log(data);
           postList.value = data;
