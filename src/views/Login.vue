@@ -16,21 +16,14 @@
 
 </template>
 <script>
-import { ref, onMounted } from "vue"
+import { ref } from "vue"
 import { supabase } from "../supabase"
-import { useRouter } from "vue-router";
 import { store } from "../store";
 
 export default {
   setup() {
     const loading = ref(false)
     const email = ref("")
-    const router = useRouter()
-
-    store.user = supabase.auth.user();
-    supabase.auth.onAuthStateChange((_, session) => {
-    store.user = session.user;
-    });
 
     const handleLogin = async () => {
       try {
@@ -47,16 +40,6 @@ export default {
         email.value = ""
       }
     }
-
-    function checkLogin(){
-      if(store.user){
-        router.push("/");
-      }
-    }
-
-     onMounted(() => {
-      checkLogin();
-    });
 
     return {
       loading,

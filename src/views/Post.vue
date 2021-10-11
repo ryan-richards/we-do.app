@@ -60,7 +60,9 @@ export default {
       } catch (error) {
         alert(error.message);
       } finally {
+        alert("Help request posted")
         loading.value = false;
+        postValue.value = "";
       }
     }
 
