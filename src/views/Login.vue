@@ -39,13 +39,12 @@ export default {
             email: email.value,
             })
         if (error) throw error
-        router.push('/')
+        alert("Check your email.")
       } catch (error) {
         alert(error.error_description || error.message)
       } finally {
         loading.value = false
         email.value = ""
-        password.value = ""
       }
     }
 
