@@ -24,8 +24,8 @@
 
         </n-space>
       <div style="max-width: 600px; padding-top:2rem; margin-left: auto; margin-right: auto">
-        <n-h3>Add some skills you can share </n-h3>
-        <n-h4>Try adding supabase to find some sample requests</n-h4>
+        <n-h3 style="margin-bottom: 0rem">Add some skills you can share </n-h3>
+        <n-h4>Try adding <n-tag type="success">supabase</n-tag> to find some sample requests</n-h4>
 
         <n-space justify="center">
           <n-form>
@@ -54,19 +54,22 @@
         v-if="!(isMobile || isTablet)"
 >
       <n-h3 style="margin-bottom: 0rem">Help Inbox</n-h3>
-      <n-space
+       <n-space
         style="padding-top: 1rem"
         justify="center"
         v-for="message in inbox"
         :key="message.id"
       >
-        <n-card>
-          <n-space>
-            <n-a>{{ message.user.username }}</n-a>
-            <n-p>{{ message.message }} with {{ message.todo }} </n-p>
-          </n-space>
-        </n-card>
-      </n-space>
+
+        <n-button @click="sendEmail(message)" icon-placement="right">
+          {{message.user.username}} : {{message.message}}
+           <template #icon>
+            <n-icon>
+              <mail-icon />
+            </n-icon>
+          </template>    
+        </n-button>
+      </n-space> 
 
       <div style="padding-top: 1rem">
         <n-button class="button block" @click="signOut" :disabled="loading">
@@ -75,6 +78,29 @@
       </div>
     </n-layout-sider>
   </n-layout>
+  <n-layout-content v-if="(isMobile || isTablet)">
+    <n-divider></n-divider>
+    <n-h3 style="margin-bottom: 0rem">Help Inbox</n-h3>
+      <n-space
+        style="padding-top: 1rem"
+        justify="center"
+        v-for="message in inbox"
+        :key="message.id"
+      >
+
+        <n-button @click="sendEmail(message)" icon-placement="right">
+          {{message.user.username}} : {{message.message}}
+           <template #icon>
+            <n-icon>
+              <mail-icon />
+            </n-icon>
+          </template>    
+        </n-button>
+      </n-space> 
+    </n-layout-content>
+
+
+
 </template>
 
 <script>
@@ -83,8 +109,12 @@ import { supabase } from "../supabase";
 import { onMounted, ref, defineComponent, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useIsMobile, useIsTablet } from '../utils/composables'
+import { MailOutline as MailIcon } from "@vicons/ionicons5";
 
 export default defineComponent({
+    components: {
+    MailIcon,
+  },
   setup() {
     const router = useRouter();
     const loading = ref(true);
@@ -94,6 +124,7 @@ export default defineComponent({
     const loadedTagArray = ref([]);
     const inbox = ref([]);
 
+
     const isMobileRef = useIsMobile()
     const isTabletRef = useIsTablet()
 
@@ -101,7 +132,15 @@ export default defineComponent({
     supabase.auth.onAuthStateChange((_, session) => {
       store.user = session.user;
     });
+
     email.value = store.user.email;
+
+    function sendEmail(message) {
+    var email = message.user.email;
+    var subject = 'We-Do your offer to help ' + username.value;
+    var emailBody = 'Hi thanks for your offer to help!';
+    document.location = "mailto:"+email+"?subject="+subject+"&body="+emailBody;
+      }
 
     async function getProfile() {
       try {
@@ -135,6 +174,7 @@ export default defineComponent({
         const updates = {
           id: store.user.id,
           username: username.value,
+          email: email.value,
           updated_at: new Date(),
         };
 
@@ -205,9 +245,8 @@ export default defineComponent({
           .from("helpInbox")
           .select(
             `*,
-          user:user(username)
+          user:user(*)
           helped:helped(username)
-          todo:todo_id(content)
           `
           )
           .eq("helped", store.user.id);
@@ -254,6 +293,7 @@ export default defineComponent({
       getHelpInbox,
       isMobile: isMobileRef,
       isTablet: isTabletRef,
+      sendEmail
     };
   },
 });
