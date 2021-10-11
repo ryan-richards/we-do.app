@@ -25,6 +25,7 @@
         </n-space>
       <div style="max-width: 600px; padding-top:2rem; margin-left: auto; margin-right: auto">
         <n-h3>Add some skills you can share </n-h3>
+        <n-h4>Try adding supabase to find some sample requests</n-h4>
 
         <n-space justify="center">
           <n-form>
