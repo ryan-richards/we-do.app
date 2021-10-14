@@ -61,7 +61,7 @@
         :key="message.id"
       >
 
-        <n-button @click="sendEmail(message)" icon-placement="right" style="max-width:150px;">
+        <n-button @click="sendEmail(message)" icon-placement="right">
           {{message.user.username}} : {{message.message}}
            <template #icon>
             <n-icon>
