@@ -167,4 +167,8 @@ export default {
   margin-left: auto;
   margin-right: auto;
 }
+
+.n-gradient-text{
+white-space:normal;
+}
 </style>
