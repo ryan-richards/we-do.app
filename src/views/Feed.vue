@@ -16,7 +16,7 @@
         ><n-gradient-text type="success">
           {{ post.user.username}}
         </n-gradient-text>
-        needs help to
+        needs help
         <n-gradient-text type="info">
           {{ post.content }}
         </n-gradient-text></n-h1
