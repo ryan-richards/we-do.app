@@ -64,12 +64,6 @@
         </n-button>
       
       </n-space> 
-
-      <div style="padding-top: 1rem">
-        <n-button class="button block" @click="signOut" :disabled="loading">
-          Sign Out
-        </n-button>
-      </div>
     </n-layout-sider>
   </n-layout>
   <n-layout-content v-if="(isMobile || isTablet)">
