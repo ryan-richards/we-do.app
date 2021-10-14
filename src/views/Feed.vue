@@ -10,9 +10,9 @@
       v-if="index < 1"
       vertical
       justify="center"
-      style="padding-top: 2rem"
+      style="padding-top:2rem;padding-left:24px;padding-right:24px;max-width:900px;margin-left:auto;margin-right:auto;"
     >
-      <n-h1 style="max-width:900px;margin-left:auto;margin-right:auto;"
+      <n-h1
         ><n-gradient-text type="success">
           {{ post.user.username}}
         </n-gradient-text>
