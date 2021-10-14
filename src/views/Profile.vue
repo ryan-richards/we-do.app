@@ -39,29 +39,22 @@
           </n-form>
         </n-space>
       </div>
-      <div style="padding-top: 0rem">
-        <n-button
-          class="button block"
-          @click="deleteOldSkills"
-          :disabled="loading"
-        >
-          Update Skills
-        </n-button>
-      </div>
     </n-layout-content>
+       
+       
        <n-layout-sider
         content-style="padding: 24px;"
-        v-if="!(isMobile || isTablet)"
->
+        v-if="!(isMobile || isTablet)">
       <n-h3 style="margin-bottom: 0rem">Help Inbox</n-h3>
+       
        <n-space
-        style="padding-top: 1rem"
+        style="padding-top: 1rem;"
         justify="center"
         v-for="message in inbox"
         :key="message.id"
-      >
+        >
 
-        <n-button @click="sendEmail(message)" icon-placement="right">
+        <n-button @click="sendEmail(message)" icon-placement="right" style="white-space:normal;padding:24px;">
           {{message.user.username}} : {{message.message}}
            <template #icon>
             <n-icon>
@@ -69,6 +62,7 @@
             </n-icon>
           </template>    
         </n-button>
+      
       </n-space> 
 
       <div style="padding-top: 1rem">
@@ -106,7 +100,7 @@
 <script>
 import { store } from "../store";
 import { supabase } from "../supabase";
-import { onMounted, ref, defineComponent, computed } from "vue";
+import { onMounted, ref, defineComponent, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useIsMobile, useIsTablet } from '../utils/composables'
 import { MailOutline as MailIcon } from "@vicons/ionicons5";
@@ -133,6 +127,10 @@ export default defineComponent({
       store.user = session.user;
     });
 
+    watch(() => [...tagArray.value],() => {
+      deleteOldSkills();
+    })
+    
     email.value = store.user.email;
 
     function sendEmail(message) {
@@ -144,7 +142,6 @@ export default defineComponent({
 
     async function getProfile() {
       try {
-        loading.value = true;
         store.user = supabase.auth.user();
 
         let { data, error, status } = await supabase
@@ -155,6 +152,7 @@ export default defineComponent({
 
         if (error && status !== 406) throw error;
         if (data) {
+          console.log("getting profile")
           username.value = data.username;
           tagArray.value = data.skills;
           loadedTagArray.value = data.skills;
@@ -162,7 +160,6 @@ export default defineComponent({
       } catch (error) {
         alert(error.message);
       } finally {
-        loading.value = false;
       }
     }
 
@@ -192,7 +189,6 @@ export default defineComponent({
 
     async function deleteOldSkills() {
       try {
-        loading.value = true;
         store.user = supabase.auth.user();
 
         const deleteSkills = {
@@ -200,7 +196,6 @@ export default defineComponent({
           skills: loadedTagArray.value,
           updated_at: new Date(),
         };
-
         let { error } = await supabase.from("profiles").delete(deleteSkills, {
           returning: "minimal",
         });
@@ -208,22 +203,18 @@ export default defineComponent({
       } catch (error) {
         alert(error.message);
       } finally {
-        loading.value = false;
         updateSkills();
       }
     }
 
     async function updateSkills() {
       try {
-        loading.value = true;
         store.user = supabase.auth.user();
-
         const updates = {
           id: store.user.id,
           skills: tagArray.value,
           updated_at: new Date(),
         };
-
         let { error } = await supabase.from("profiles").upsert(updates, {
           returning: "minimal", // Don't return the value after inserting
         });
@@ -232,8 +223,6 @@ export default defineComponent({
       } catch (error) {
         alert(error.message);
       } finally {
-        loading.value = false;
-        getProfile();
       }
     }
 
