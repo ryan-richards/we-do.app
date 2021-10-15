@@ -39,10 +39,37 @@
           </n-form>
         </n-space>
       </div>
+
+
+      <n-divider></n-divider>
+
+      <n-space vertical style="max-width:400px;margin-left:auto;margin-right:auto;">
+
+        <n-h3>Your Help Requests</n-h3>
+
+        <n-space  v-for="post in posts" :key="post.id">
+        <n-button @click="completeRequest(post)" style="white-space:normal;padding:24px;text-align:left;" icon-placement="right" :type="post.complete ? 'success' : 'default'">
+          {{post.content}}
+           <template #icon>
+            <n-icon v-if="!post.complete">
+              <empty-icon />
+            </n-icon>
+             <n-icon v-else>
+              <check-icon />
+            </n-icon>
+          </template>    
+        </n-button>
+        </n-space>
+
+      </n-space>
+
+
     </n-layout-content>
        
        
-       <n-layout-sider
+  
+  
+  <n-layout-sider
         content-style="padding: 24px;"
         v-if="!(isMobile || isTablet)">
       <n-h3 style="margin-bottom: 0rem">Help Inbox</n-h3>
@@ -66,6 +93,8 @@
       </n-space> 
     </n-layout-sider>
   </n-layout>
+  
+  
   <n-layout-content v-if="(isMobile || isTablet)">
     <n-divider></n-divider>
     <n-h3 style="margin-bottom: 0rem">Help Inbox</n-h3>
@@ -97,11 +126,16 @@ import { supabase } from "../supabase";
 import { onMounted, ref, defineComponent, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useIsMobile, useIsTablet } from '../utils/composables'
-import { MailOutline as MailIcon } from "@vicons/ionicons5";
+import { MailOutline as MailIcon,
+CheckmarkCircleOutline as CheckIcon,
+RadioButtonOffOutline as EmptyIcon
+} from "@vicons/ionicons5";
 
 export default defineComponent({
     components: {
     MailIcon,
+    CheckIcon,
+    EmptyIcon
   },
   setup() {
     const router = useRouter();
@@ -111,7 +145,9 @@ export default defineComponent({
     const tagArray = ref([]);
     const loadedTagArray = ref([]);
     const inbox = ref([]);
+    const posts = ref([]);
 
+    const complete = ref(false);
 
     const isMobileRef = useIsMobile()
     const isTabletRef = useIsTablet()
@@ -181,6 +217,37 @@ export default defineComponent({
       }
     }
 
+    async function completeRequest(post) {
+      try {
+        loading.value = true;
+
+        if (post.complete){
+          const updates = {
+          id: post.id,
+          complete: false
+        }
+          let { error } = await supabase.from("todos").upsert(updates, {
+          returning: "minimal", // Don't return the value after inserting
+        });
+        if (error) throw error;
+        } else {
+          const updates = {
+          id: post.id,
+          complete: true
+        }
+          let { error } = await supabase.from("todos").upsert(updates, {
+          returning: "minimal", // Don't return the value after inserting
+        });
+        if (error) throw error;
+        }  
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        loading.value = false;
+        post.complete = !post.complete
+      }
+    }
+
     async function deleteOldSkills() {
       try {
         store.user = supabase.auth.user();
@@ -245,6 +312,27 @@ export default defineComponent({
       }
     }
 
+    async function getPosts() {
+      try {
+        loading.value = true;
+        let { data, error } = await supabase
+          .from("todos")
+          .select(`* ,
+          user:user(*)
+          `)
+          .eq("user", store.user.id)
+          .order('created_at', { ascending: false })
+        if (data) {
+          console.log(data);
+          posts.value = data;
+        }
+      } catch (error) {
+        alert(error.message);
+      } finally {
+        loading.value = false;
+      }
+    }
+
     async function signOut() {
       try {
         let { error } = await supabase.auth.signOut();
@@ -257,6 +345,7 @@ export default defineComponent({
 
     onMounted(() => {
       getProfile();
+      getPosts();
       getHelpInbox();
     });
 
@@ -276,7 +365,11 @@ export default defineComponent({
       getHelpInbox,
       isMobile: isMobileRef,
       isTablet: isTabletRef,
-      sendEmail
+      sendEmail,
+      getPosts,
+      posts,
+      complete,
+      completeRequest
     };
   },
 });
