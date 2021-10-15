@@ -16,9 +16,10 @@
         ><n-gradient-text type="success">
           {{ post.user.username}}
         </n-gradient-text>
-        needs help
+        needs help <span v-if="notIng">to </span>
         <n-gradient-text type="info">
           {{ post.content }}
+          {{ checkFirstWord(post)}}
         </n-gradient-text></n-h1
       >
       <n-h3 style="margin-bottom: 0.2rem">Can you help?</n-h3>
@@ -42,7 +43,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed} from "vue";
 import { supabase } from "../supabase";
 import { store } from "../store";
 import { MailOutline as MailIcon } from "@vicons/ionicons5";
@@ -57,11 +58,24 @@ export default {
     const postValue = ref("");
     const tagArray = ref([]);
     const userSkills = ref([]);
+    const notIng = ref(false);
 
 
     function removeItem(index) {
       postList.value.splice(index, 1);
     }
+
+   function checkFirstWord(post){
+     if(post.content){
+       let firstWord = post.content.split(" ")[0]
+       let lastThree = firstWord.slice(-3)
+       if(lastThree === "ing"){
+         notIng.value = false;
+       } else {
+         notIng.value = true;
+       }
+     }
+   }
 
     async function sendHelp(post) {
       try {
@@ -156,6 +170,8 @@ export default {
       getUserSkills,
       removeItem,
       sendHelp,
+      checkFirstWord,
+      notIng
     };
   },
 };
