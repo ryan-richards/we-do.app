@@ -95,7 +95,7 @@
   </n-layout>
   
   
-  <n-layout-content v-if="(isMobile || isTablet)">
+  <n-layout-content v-if="(isMobile || isTablet)" style="margin-bottom:5rem;">
     <n-divider></n-divider>
     <n-h3 style="margin-bottom: 0rem">Help Inbox</n-h3>
       <n-space
