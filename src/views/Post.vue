@@ -33,6 +33,10 @@
     </n-form>
   </n-space>
 
+  <n-space justify="center" v-if="success">
+    <n-h4>Your help request was posted successfully!</n-h4>
+  </n-space>
+
 </template>
 
 <script>
@@ -45,6 +49,8 @@ export default {
     const loading = ref(false);
     const postValue = ref("");
     const tagArray = ref(["logo design","supabase"]);
+
+    const success = ref(false);
 
     async function postItem() {
       try {
@@ -60,10 +66,17 @@ export default {
       } catch (error) {
         alert(error.message);
       } finally {
-        alert("Help request posted")
         loading.value = false;
+        success.value = true;
         postValue.value = "";
+        successfulPost()
       }
+    }
+
+    function successfulPost(){
+      setTimeout(() => {
+        success.value = false;
+      }, 3000);
     }
 
     return {
@@ -71,6 +84,8 @@ export default {
       loading,
       postValue,
       postItem,
+      success,
+      successfulPost
     };
   },
 };
